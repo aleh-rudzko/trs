@@ -21,12 +21,12 @@ module.exports = function(grunt) {
             },
             css: {
                 options: {
-                    separator: '\n',
-                    src: [
+                    separator: '\n'
+                },
+                src: [
                         'ui/css/*.css'
                     ],
-                    dest: 'static/main.css'
-                }
+                dest: 'static/main.css'
             }
         },
         // —жимаем
