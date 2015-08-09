@@ -9,5 +9,5 @@ class Report(TimeStampModel):
     report_date = models.DateTimeField()
     effort = models.TimeField()
     description = models.TextField(max_length=200)
-    tasks = models.ForeignKey(Task)
-    user = models.ForeignKey(User)
+    tasks = models.ForeignKey(Task, related_name='reports')
+    user = models.ForeignKey(User, related_name='reports')
