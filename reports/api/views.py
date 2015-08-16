@@ -4,4 +4,4 @@ from reports.models import Report
 
 class ReportViewSet(viewsets.ModelViewSet):
     serializer_class = ReportSerializer
-    queryset = Report
+    queryset = Report.objects.all()
