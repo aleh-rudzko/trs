@@ -16,7 +16,7 @@ var app = angular.module('TimeSystemApp', ['ui.router', 'ngResource']);
         })
           .state('project.list', {
               url: "/list",
-              templateUrl: "ui/src/templates/project/list.html",
+              templateUrl: "ui/src/templates/project/project_list.html",
               controller: 'ProjectListController'
           })
             .state('project.list.detail', {
@@ -35,7 +35,7 @@ var app = angular.module('TimeSystemApp', ['ui.router', 'ngResource']);
         //})
         //  .state('state2.list', {
         //      url: "/list",
-        //      templateUrl: "ui/src/templates/state2.list.html",
+        //      templateUrl: "ui/src/templates/state2.project_list.html",
         //      controller: function($scope){
         //        $scope.things = ["A", "Set", "Of", "Things"];
         //      }
@@ -122,7 +122,7 @@ app.factory('Projects', ['$resource', function($resource){
   );
 
 
-  $templateCache.put('ui/src/templates/project/list.html',
+  $templateCache.put('ui/src/templates/project/project_list.html',
     "<h3>List</h3>\r" +
     "\n" +
     "<table class=\"table table-hover\">\r" +
