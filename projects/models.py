@@ -34,13 +34,21 @@ class Project(TimeStampModel):
         return self.owner == user
 
     def is_admin(self, user):
-        return self.projectmembership_set.filter(user=user, role='Admin').count() > 0
+        return self.projectmembership_set.filter(user=user, role=2, is_active=True).count() > 0
 
     def is_manager(self, user):
-        return self.is_admin(user) or self.projectmembership_set.filter(user=user, role='Manager').count() > 0
+        conditions = [
+            self.is_admin(user),
+            self.projectmembership_set.filter(user=user, role=1, is_active=True).count() > 0
+        ]
+        return any(conditions)
 
     def is_membership(self, user):
-        return self.is_manager(user) or self.projectmembership_set.filter(user=user, role='Member').count() > 0
+        conditions = [
+            self.is_manager(user),
+            self.projectmembership_set.filter(user=user, role=0, is_active=True).count() > 0
+        ]
+        return any(conditions)
 
 class ProjectMembership(TimeStampModel):
     LEVELS = (
@@ -56,3 +64,45 @@ class ProjectMembership(TimeStampModel):
 
     def __str__(self):
         return '%s user invited to project %s' % (self.user, self.project)
+
+
+class TaskManager(models.Manager):
+    def available_for_user(self, user):
+        queryset = self.filter(taskmembership__user=user, taskmebmership__is_active=True)
+        return queryset
+
+
+class Task(TimeStampModel):
+    STATE = (
+        (0, 'Draft'),
+        (1, 'Start'),
+        (2, 'Completed')
+    )
+    name = models.CharField(max_length=50)
+    description = models.TextField(max_length=200)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    state = models.IntegerField(choices=STATE, default=0)
+    project = models.ForeignKey(Project)
+    owner = models.ForeignKey(User)
+    employees = models.ManyToManyField(User, related_name='available_tasks')
+
+    def is_membership(self, user):
+        return self.taskmembership_set.filter(user=user).count() > 0
+
+    def is_owner(self, user):
+        return self.owner == user
+
+
+class TaskMembership(TimeStampModel):
+    user = models.ForeignKey(User, verbose_name='user')
+    task = models.ForeignKey(Task, verbose_name='task')
+    is_active = models.BooleanField(verbose_name='is_active', default=True)
+
+
+class Report(TimeStampModel):
+    report_date = models.DateTimeField()
+    effort = models.TimeField()
+    description = models.TextField(max_length=200)
+    tasks = models.ForeignKey(Task, related_name='reports')
+    user = models.ForeignKey(User, related_name='reports')

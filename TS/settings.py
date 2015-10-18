@@ -40,8 +40,6 @@ INSTALLED_APPS = (
     'rest_framework',
     'users',
     'projects',
-    'tasks',
-    'reports'
 )
 
 MIDDLEWARE_CLASSES = (
