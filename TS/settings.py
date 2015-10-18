@@ -26,7 +26,7 @@ SECRET_KEY = 'c5tdly&k7yks$e*lzpif&#cl+sbo@xe4ex56rz6o&(mcy2%$8!'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+LOGIN_URL = "users_login"
 
 # Application definition
 
@@ -55,7 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'TS.urls'
+ROOT_URLCONF = 'ts.urls'
 
 
 

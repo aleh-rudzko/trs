@@ -1,5 +1,5 @@
 from django.db import models
-from ts.mixins import TimeStampModel
+from TS.mixins import TimeStampModel
 from users.models import User
 # Create your models here.
 
