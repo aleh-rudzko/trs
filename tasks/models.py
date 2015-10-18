@@ -18,4 +18,18 @@ class Task(TimeStampModel):
     end_date = models.DateTimeField()
     state = models.IntegerField(choices=STATE, default=0)
     project = models.ForeignKey(Project)
+    owner = models.ForeignKey(User)
     employees = models.ManyToManyField(User, related_name='available_tasks')
+
+    def is_membership(self, user):
+        return self.taskmembership_set.filter(user=user).count() > 0
+
+    def is_owner(self, user):
+        return self.owner == user
+
+
+class TaskMembership(TimeStampModel):
+    user = models.ForeignKey(User, verbose_name='user')
+    task = models.ForeignKey(Task, verbose_name='task')
+    is_active = models.BooleanField(verbose_name='is_active', default=True)
+

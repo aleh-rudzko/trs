@@ -28,6 +28,7 @@ api_urlpatterns= [
 urlpatterns = [
     url(r'^$', home, name='home_page'),
     url(r'^user/', include('users.urls')),
+    url(r'^project/', include('projects.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_urlpatterns)),

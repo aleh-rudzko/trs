@@ -11,3 +11,4 @@ class Report(TimeStampModel):
     description = models.TextField(max_length=200)
     tasks = models.ForeignKey(Task, related_name='reports')
     user = models.ForeignKey(User, related_name='reports')
+

@@ -55,7 +55,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'ts.urls'
+ROOT_URLCONF = 'TS.urls'
 
 
 
@@ -121,3 +121,6 @@ TEMPLATES = [
         },
     },
 ]
+
+
+LOGIN_REDIRECT_URL = 'project_list'

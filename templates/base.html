@@ -1,16 +1,16 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en" ng-app="TimeSystemApp">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
+    <title>{% block title-block %}Home{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
     <script src="{% static "common.js" %}" type="text/javascript"></script>
     <script src="{% static "application.js" %}" type="text/javascript"></script>
 
 </head>
-<body ng-controller="MainController">
+<body>
     <div class="wrapper">
         <header class="bg-primary">
             <div class="container">
@@ -20,7 +20,7 @@
                     <div class="col-md-7 col-sm-7">
                         {% block menu-block %}
                             <div class="row">
-                                <div class="col-sm-12">
+                                <div class="col-sm-offset-10 col-sm-2">
                                     <a href="{% url 'users_logout' %}" class="black-a"><span>logout</span></a>
                                 </div>
                             </div>

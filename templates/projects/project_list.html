@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% block title-block %}My projects{% endblock %}
 {% block content-block %}
     <div class="row">
         <div class="col-md-12">
@@ -12,7 +12,7 @@
                 </tr>
                 {% for project in projects %}
                 <tr>
-                    <td>{{ project.name }}</td>
+                    <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
                     <td>{{ project.start_date|date:"m/d/Y" }}</td>
                     <td>{{ project.end_date|date:"m/d/Y" }}</td>
                     <td></td>

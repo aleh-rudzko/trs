@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title-block %}{{ project.name }}{% endblock %}
+{% block content-block %}
+    <div class="row">
+        <div class="col-md-12">
+            {{ project.description }}
+        </div>
+    </div>
+{% endblock %}
