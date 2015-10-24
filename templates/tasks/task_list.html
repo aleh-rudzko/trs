@@ -12,7 +12,7 @@
                 </tr>
                 {% for task in tasks %}
                 <tr>
-                    <td><a href="">{{ task.name }}</a></td>
+                    <td><a href="{{ task.get_absolute_url }}">{{ task.name }}</a></td>
                     <td>{{ task.start_date|date:"m/d/Y" }}</td>
                     <td>{{ task.end_date|date:"m/d/Y" }}</td>
                     <td></td>

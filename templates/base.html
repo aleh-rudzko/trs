@@ -21,6 +21,7 @@
                         {% block menu-block %}
                             <div class="row">
                                 <div class="col-sm-offset-10 col-sm-2">
+                                    <span>{{ user.email }}</span>
                                     <a href="{% url 'users_logout' %}" class="black-a"><span>logout</span></a>
                                 </div>
                             </div>

@@ -73,3 +73,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         if not self.is_active:
             return self.email
         return "%s %s" % (self.first_name, self.last_name)
+
+    def is_admin(self):
+        if self.role == 1:
+            return True
+        return False

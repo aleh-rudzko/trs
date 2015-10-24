@@ -9,7 +9,7 @@ class ProjectManager(models.Manager):
         return queryset
 
     def available_for_admin(self, user):
-        queryset = self.filter(admin=user)
+        queryset = self.filter(owner=user)
         return queryset
 
 
@@ -19,7 +19,6 @@ class Project(TimeStampModel):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     owner = models.ForeignKey(User, related_name='projects')
-    employees = models.ManyToManyField(User, related_name='available_projects')
 
     objects = ProjectManager()
 
@@ -34,21 +33,28 @@ class Project(TimeStampModel):
         return self.owner == user
 
     def is_admin(self, user):
-        return self.projectmembership_set.filter(user=user, role=2, is_active=True).count() > 0
+        conditions = [
+            self.is_owner(user),
+            self.projectmembership_set.filter(user=user, role=2, is_active=True).exists()
+        ]
+        return any(conditions)
 
     def is_manager(self, user):
         conditions = [
             self.is_admin(user),
-            self.projectmembership_set.filter(user=user, role=1, is_active=True).count() > 0
+            self.projectmembership_set.filter(user=user, role=1, is_active=True).exists()
         ]
         return any(conditions)
 
     def is_membership(self, user):
         conditions = [
             self.is_manager(user),
-            self.projectmembership_set.filter(user=user, role=0, is_active=True).count() > 0
+            self.projectmembership_set.filter(user=user, role=0, is_active=True).exists()
         ]
         return any(conditions)
+
+    def verify_access(self, user):
+        return self.is_membership(user)
 
 class ProjectMembership(TimeStampModel):
     LEVELS = (
@@ -68,7 +74,7 @@ class ProjectMembership(TimeStampModel):
 
 class TaskManager(models.Manager):
     def available_for_user(self, user):
-        queryset = self.filter(taskmembership__user=user, taskmebmership__is_active=True)
+        queryset = self.filter(taskmembership__user=user, taskmembership__is_active=True)
         return queryset
 
 
@@ -85,13 +91,30 @@ class Task(TimeStampModel):
     state = models.IntegerField(choices=STATE, default=0)
     project = models.ForeignKey(Project)
     owner = models.ForeignKey(User)
-    employees = models.ManyToManyField(User, related_name='available_tasks')
+    objects = TaskManager()
+
+    @models.permalink
+    def get_absolute_url(self):
+        return 'project_task_detail', [self.project.pk, self.pk, ]
 
     def is_membership(self, user):
-        return self.taskmembership_set.filter(user=user).count() > 0
+        return self.taskmembership_set.filter(user=user).exists()
 
     def is_owner(self, user):
         return self.owner == user
+
+    def verify_access(self, user):
+        conditions_access = [
+            self.is_owner(user),
+            self.is_membership(user),
+            self.project.is_manager(user)
+        ]
+        if any(conditions_access):
+            return True
+        return False
+
+    def __str__(self):
+        return 'Task "%s" for project "%s"' % (self.name, self.project.name)
 
 
 class TaskMembership(TimeStampModel):

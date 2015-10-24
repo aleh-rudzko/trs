@@ -1,5 +1,5 @@
 from django.contrib import admin
-from projects.models import Project, ProjectMembership
+from projects.models import Project, ProjectMembership, Task, TaskMembership
 # Register your models here.
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -10,3 +10,13 @@ class ProjectMembershipAdmin(admin.ModelAdmin):
 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(ProjectMembership, ProjectMembershipAdmin)
+
+
+class TaskAdmin(admin.ModelAdmin):
+    pass
+
+class TaskMembershipAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(Task, TaskAdmin)
+admin.site.register(TaskMembership, TaskMembershipAdmin)
