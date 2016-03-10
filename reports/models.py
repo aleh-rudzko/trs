@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from TS.mixins import TimeStampModel
+from trs.mixins import TimeStampModel
 from tasks.models import Task
 from users.models import User
 

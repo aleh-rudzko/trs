@@ -53,7 +53,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'TS.urls'
+ROOT_URLCONF = 'trs.urls'
 
 
 
