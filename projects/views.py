@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from projects.models import Project, Task
 from django.core.exceptions import PermissionDenied
 # Create your views here.
+
 
 class ProjectListView(ListView):
     model = Project
@@ -16,12 +17,14 @@ class ProjectListView(ListView):
             return Project.objects.available_for_admin(user)
         return Project.objects.available_for_user(user)
 
+
 class BaseProjectDetail(object):
     def get(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, pk=kwargs['pk'])
         if not self.project.verify_access(request.user):
             raise PermissionDenied()
         return super(BaseProjectDetail, self).get(request, *args, **kwargs)
+
 
 class ProjectDetailView(BaseProjectDetail, DetailView):
     model = Project
@@ -39,12 +42,14 @@ class ProjectTaskListView(BaseProjectDetail, ListView):
             return Task.objects.filter(project=self.project)
         return Task.objects.available_for_user(user).filter(project=self.project)
 
+
 class BaseTaskDetail(BaseProjectDetail):
     def get(self, request, *args, **kwargs):
         self.task = get_object_or_404(Task, pk=kwargs['task_pk'])
         if not self.task.verify_access(request.user):
             raise PermissionDenied()
         return super(BaseTaskDetail, self).get(request, *args, **kwargs)
+
 
 class ProjectTaskDetailView(BaseTaskDetail, DetailView):
     model = Task

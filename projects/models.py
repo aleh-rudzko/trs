@@ -3,6 +3,7 @@ from trs.mixins import TimeStampModel
 from users.models import User
 # Create your models here.
 
+
 class ProjectManager(models.Manager):
     def available_for_user(self, user):
         queryset = self.filter(projectmembership__user=user, projectmembership__is_active=True)
@@ -55,6 +56,7 @@ class Project(TimeStampModel):
 
     def verify_access(self, user):
         return self.is_membership(user)
+
 
 class ProjectMembership(TimeStampModel):
     LEVELS = (
