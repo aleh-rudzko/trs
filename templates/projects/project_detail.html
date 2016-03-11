@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title-block %}{{ project.name }}{% endblock %}
+{% block content-block %}
+    <div class="row">
+        <div class="col-md-12">
+            {{ project.description }}
+            <a href="{% url 'project_task_list' project.pk %}">Task list</a>
+        </div>
+    </div>
+{% endblock %}

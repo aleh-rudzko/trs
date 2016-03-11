@@ -39,6 +39,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    ROLES = (
+        (0, 'User'),
+        (1, 'Admin')
+    )
+
     first_name = models.CharField(_('first name'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=100, blank=True)
 
@@ -57,6 +62,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
+    role = models.IntegerField(choices=ROLES, default=0)
+
     objects = UserManager()
 
     def get_short_name(self):
@@ -66,3 +73,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         if not self.is_active:
             return self.email
         return "%s %s" % (self.first_name, self.last_name)
+
+    def is_admin(self):
+        if self.role == 1:
+            return True
+        return False

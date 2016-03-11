@@ -1,4 +1,3 @@
-__author__ = 'Aleh'
 from django.db import models
 
 class TimeStampModel(models.Model):

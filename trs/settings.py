@@ -26,7 +26,7 @@ SECRET_KEY = 'c5tdly&k7yks$e*lzpif&#cl+sbo@xe4ex56rz6o&(mcy2%$8!'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+LOGIN_URL = "users_login"
 
 # Application definition
 
@@ -39,7 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'rest_framework',
     'users',
-    'projects'
+    'projects',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,25 +53,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'TS.urls'
+ROOT_URLCONF = 'trs.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
-    },
-]
 
-WSGI_APPLICATION = 'TS.wsgi.application'
+
+WSGI_APPLICATION = 'trs.wsgi.application'
 
 
 # Database
@@ -113,6 +99,26 @@ SOCIAL_AUTH_USER_MODEL = 'users.User'
 
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR,  'templates'),
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "bower_components"),
 )
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+
+LOGIN_REDIRECT_URL = 'project_list'

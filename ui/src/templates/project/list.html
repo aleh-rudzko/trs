@@ -1,0 +1,16 @@
+<h3>List</h3>
+<table class="table table-hover">
+    <tr ui-sref="project.list">
+        <th>Name</th>
+        <th>Description</th>
+        <th>Start date</th>
+        <th>End date</th>
+    </tr>
+    <tr ng-repeat="project in projects" ui-sref="project.list.detail({id:{{ project.id }}})">
+        <td>{{ project.name }}</td>
+        <td>{{ project.description }}</td>
+        <td>{{ project.start_date }}</td>
+        <td>{{ project.end_date }}</td>
+    </tr>
+</table>
+<div ui-view></div>
