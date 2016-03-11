@@ -20,8 +20,8 @@ from django.contrib import admin
 api_urlpatterns= [
     url(r'^users/', include('users.api.urls')),
     url(r'^projects/', include('projects.api.urls')),
-    url(r'^tasks/', include('tasks.api.urls')),
-    url(r'^reports/', include('reports.api.urls')),
+    #url(r'^tasks/', include('tasks.api.urls')),
+    #url(r'^reports/', include('reports.api.urls')),
 ]
 
 

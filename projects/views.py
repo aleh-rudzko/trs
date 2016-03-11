@@ -58,7 +58,7 @@ class TaskReportListView(BaseTaskDetail, ListView):
 
     def get_queryset(self):
         user = self.request.user
-        if
+
 
 
 

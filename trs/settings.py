@@ -57,7 +57,7 @@ ROOT_URLCONF = 'trs.urls'
 
 
 
-WSGI_APPLICATION = 'TS.wsgi.application'
+WSGI_APPLICATION = 'trs.wsgi.application'
 
 
 # Database
