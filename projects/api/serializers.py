@@ -1,13 +1,30 @@
-__author__ = 'Aleh'
-
-
 from rest_framework import serializers
-from projects.models import Project
+from projects.models import Project, Task, Report
 from users.models import User
 
+
 class ProjectSerializer(serializers.ModelSerializer):
-    admin = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    employees = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+    tasks = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='task-detail'
+    )
 
     class Meta:
         model = Project
+
+
+class TaskSerializer(serializers.ModelSerializer):
+    reports = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='report-detail'
+    )
+
+    class Meta:
+        model = Task
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Report

@@ -19,7 +19,7 @@ from django.contrib import admin
 
 api_urlpatterns= [
     url(r'^users/', include('users.api.urls')),
-    url(r'^projects/', include('projects.api.urls')),
+    url(r'', include('projects.api.urls')),
     #url(r'^tasks/', include('tasks.api.urls')),
     #url(r'^reports/', include('reports.api.urls')),
 ]
@@ -27,8 +27,8 @@ api_urlpatterns= [
 
 urlpatterns = [
     url(r'^$', home, name='home_page'),
-    url(r'^user/', include('users.urls')),
-    url(r'^project/', include('projects.urls')),
+    url(r'^users/', include('users.urls')),
+    url(r'^projects/', include('projects.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_urlpatterns)),

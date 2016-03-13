@@ -91,8 +91,8 @@ class Task(TimeStampModel):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     state = models.IntegerField(choices=STATE, default=0)
-    project = models.ForeignKey(Project)
-    owner = models.ForeignKey(User)
+    project = models.ForeignKey(Project, related_name='tasks')
+    owner = models.ForeignKey(User, related_name='tasks')
     objects = TaskManager()
 
     @models.permalink
@@ -129,5 +129,5 @@ class Report(TimeStampModel):
     report_date = models.DateTimeField()
     effort = models.TimeField()
     description = models.TextField(max_length=200)
-    tasks = models.ForeignKey(Task, related_name='reports')
+    task = models.ForeignKey(Task, related_name='reports')
     user = models.ForeignKey(User, related_name='reports')

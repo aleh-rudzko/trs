@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from projects.models import Project, Task
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 # Create your views here.
 
 
-class ProjectListView(ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     model = Project
-    context_object_name = 'projects'
     paginate_by = 10
+    context_object_name = 'projects'
     template_name = 'projects/project_list.html'
 
     def get_queryset(self):
@@ -18,7 +19,7 @@ class ProjectListView(ListView):
         return Project.objects.available_for_user(user)
 
 
-class BaseProjectDetail(object):
+class BaseProjectDetail(LoginRequiredMixin):
     def get(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, pk=kwargs['pk'])
         if not self.project.verify_access(request.user):

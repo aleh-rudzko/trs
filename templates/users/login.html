@@ -9,6 +9,7 @@
             <h1 class="text-center">Sign in</h1>
             <form action="{% url 'users_login' %}" method="POST" id="login">
                 {% csrf_token %}
+                <input type="hidden" value="{{ next }}" name="next">
                 <div class="form-group {% if form.username.errors %} has-error {% endif %}">
                     <input type="text" class="form-control" placeholder="Login" name="username">
                     {% if form.username.errors %}
