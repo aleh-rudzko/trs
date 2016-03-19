@@ -1,43 +1,50 @@
 /**
  * Created by Aleh on 16.08.2015.
  */
-var app = angular.module('TimeSystemApp', ['ui.router', 'ngResource']);
+var app = angular.module('trs', ['ui.router', 'ui.bootstrap', 'ngResource']);
 
- app.config(function($stateProvider, $urlRouterProvider){
+app.config(function($stateProvider, $urlRouterProvider) {
 
-      // For any unmatched url, send to /route1
-      $urlRouterProvider.otherwise("/project");
-
-      $stateProvider
-        .state('project', {
-            url: "/project",
-            templateUrl: "ui/src/templates/project/main.html",
-            controller: 'ProjectMainController'
+  // For any unmatched url, redirect to /projects
+    $urlRouterProvider.otherwise("/projects");
+  //
+  // Now set up the states
+    $stateProvider
+        .state('projects', {
+            url: "/projects",
+            templateUrl: "static/projects/list.html",
+            controller: 'ProjectListController'
         })
-          .state('project.list', {
-              url: "/list",
-              templateUrl: "ui/src/templates/project/project_list.html",
-              controller: 'ProjectListController'
-          })
-            .state('project.list.detail', {
-              url: "/:id",
-              templateUrl: "ui/src/templates/project/detail.html",
-              controller: 'ProjectDetailController'
-          })
-        .state('login', {
-              url: "/login",
-              templateUrl: "ui/src/templates/auth/login.html",
-              controller: 'LoginController'
-          })
-        //.state('state2', {
-        //    url: "/state2",
-        //    templateUrl: "ui/src/templates/state2.html"
-        //})
-        //  .state('state2.list', {
-        //      url: "/list",
-        //      templateUrl: "ui/src/templates/state2.project_list.html",
-        //      controller: function($scope){
+        .state('projects.detail', {
+            url: "/:project_id",
+            templateUrl: "static/projects/detail.html",
+            controller: 'ProjectDetailController'
+        })
+        .state('projects.detail.tasks', {
+            url: "/tasks",
+            templateUrl: "static/tasks/list.html",
+            controller: function($scope) {
+                $scope.items = ["A", "List", "Of", "Items"];
+            }
+        })
+        .state('projects.detail.tasks.detail', {
+            url: "/:task_id",
+            templateUrl: "static/tasks/detail.html"
+        });
+        //.state('projects.detail.tasks.detail.reports', {
+        //    url: "/list",
+        //    templateUrl: "static/partials/state2.list.html",
+        //    controller: function($scope) {
         //        $scope.things = ["A", "Set", "Of", "Things"];
-        //      }
-        //  })
-    });
+        //    }
+        //});
+});
+
+app.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+}]);
+
+app.config(['$resourceProvider', function ($resourceProvider) {
+    $resourceProvider.defaults.stripTrailingSlashes = false;
+}]);

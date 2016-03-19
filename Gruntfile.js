@@ -1,14 +1,14 @@
 module.exports = function(grunt) {
 
-    // Задачи
+    //
     grunt.initConfig({
-        // Склеиваем
-        ngtemplates: {
-            TimeSystemApp: {
-                src: ['ui/src/templates/*.html', 'ui/src/templates/**/**.html'],
-                dest: 'static/js/templates.js'
-            }
-        },
+        //
+        //ngtemplates: {
+        //    trs: {
+        //        src: ['ui/src/templates/*.html', 'ui/src/templates/**/**.html'],
+        //        dest: 'static/js/templates.js'
+        //    }
+        //},
         concat: {
             options: {
                 separator: ';'
@@ -19,8 +19,10 @@ module.exports = function(grunt) {
                     'bower_components/jquery/dist/jquery.js',
                     'bower_components/angular/angular.js',
                     'bower_components/angular-resource/angular-resource.js',
-                    'bower_components/angular-ui-router/release/angular-ui-router.js',
-                    'bower_components/bootstrap/dist/bootstrap.js'
+                    'bower_components/angular-ui-router/release/angular-ui-router.min.js',
+                    'bower_components/bootstrap/dist/bootstrap.js',
+                    'bower_components/angular-bootstrap/ui-bootstrap.min.js',
+                    'bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js'
                 ],
                 dest: 'static/common.js'
             },
@@ -44,16 +46,6 @@ module.exports = function(grunt) {
                 dest: 'static/main.css'
             }
         },
-
-        // Сжимаем
-        //uglify: {
-        //    main: {
-        //        files: {
-        //            // Результат задачи concat
-        //            'build/scripts.min.js': '<%= concat.main.dest %>'
-        //        }
-        //    }
-        //},
         watch: {
             css: {
                 options: {
@@ -77,23 +69,21 @@ module.exports = function(grunt) {
                 ],
                 tasks: ['concat']
             },
-            templates: {
-                options: {
-                    livereload: true,
-                    spawn: false
-                },
-                files: ['ui/src/templates/**/**.html'],
-                tasks: ['ngtemplates', 'concat']
-            }
+            //templates: {
+            //    options: {
+            //        livereload: true,
+            //        spawn: false
+            //    },
+            //    files: ['ui/src/templates/**/**.html'],
+            //    tasks: ['ngtemplates', 'concat']
+            //}
         }
     });
 
-    // Загрузка плагинов, установленных с помощью npm install
     grunt.loadNpmTasks('grunt-contrib-concat');
     //grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-angular-templates');
 
-    // Задача по умолчанию
-    grunt.registerTask('default', ['ngtemplates','concat', 'watch']);//, 'uglify'*/]);
+    grunt.registerTask('default', ['concat', 'watch']);//'ngtemplates', 'uglify'*/]);
 };

@@ -3,5 +3,5 @@
  */
 
 app.factory('Projects', ['$resource', function($resource){
-    return $resource('/api/projects/projects/:id', {id: '@id'})
+    return $resource('/api/projects/:id', {id: '@id'})
 }]);

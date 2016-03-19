@@ -1,46 +1,53 @@
 /**
  * Created by Aleh on 16.08.2015.
  */
-var app = angular.module('TimeSystemApp', ['ui.router', 'ngResource']);
+var app = angular.module('trs', ['ui.router', 'ui.bootstrap', 'ngResource']);
 
- app.config(function($stateProvider, $urlRouterProvider){
+app.config(function($stateProvider, $urlRouterProvider) {
 
-      // For any unmatched url, send to /route1
-      $urlRouterProvider.otherwise("/project");
-
-      $stateProvider
-        .state('project', {
-            url: "/project",
-            templateUrl: "ui/src/templates/project/main.html",
-            controller: 'ProjectMainController'
+  // For any unmatched url, redirect to /projects
+    $urlRouterProvider.otherwise("/projects");
+  //
+  // Now set up the states
+    $stateProvider
+        .state('projects', {
+            url: "/projects",
+            templateUrl: "static/projects/list.html",
+            controller: 'ProjectListController'
         })
-          .state('project.list', {
-              url: "/list",
-              templateUrl: "ui/src/templates/project/project_list.html",
-              controller: 'ProjectListController'
-          })
-            .state('project.list.detail', {
-              url: "/:id",
-              templateUrl: "ui/src/templates/project/detail.html",
-              controller: 'ProjectDetailController'
-          })
-        .state('login', {
-              url: "/login",
-              templateUrl: "ui/src/templates/auth/login.html",
-              controller: 'LoginController'
-          })
-        //.state('state2', {
-        //    url: "/state2",
-        //    templateUrl: "ui/src/templates/state2.html"
-        //})
-        //  .state('state2.list', {
-        //      url: "/list",
-        //      templateUrl: "ui/src/templates/state2.project_list.html",
-        //      controller: function($scope){
+        .state('projects.detail', {
+            url: "/:project_id",
+            templateUrl: "static/projects/detail.html",
+            controller: 'ProjectDetailController'
+        })
+        .state('projects.detail.tasks', {
+            url: "/tasks",
+            templateUrl: "static/tasks/list.html",
+            controller: function($scope) {
+                $scope.items = ["A", "List", "Of", "Items"];
+            }
+        })
+        .state('projects.detail.tasks.detail', {
+            url: "/:task_id",
+            templateUrl: "static/tasks/detail.html"
+        });
+        //.state('projects.detail.tasks.detail.reports', {
+        //    url: "/list",
+        //    templateUrl: "static/partials/state2.list.html",
+        //    controller: function($scope) {
         //        $scope.things = ["A", "Set", "Of", "Things"];
-        //      }
-        //  })
-    });;/**
+        //    }
+        //});
+});
+
+app.config(['$httpProvider', function($httpProvider) {
+    $httpProvider.defaults.xsrfCookieName = 'csrftoken';
+    $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
+}]);
+
+app.config(['$resourceProvider', function ($resourceProvider) {
+    $resourceProvider.defaults.stripTrailingSlashes = false;
+}]);;/**
  * Created by Aleh on 16.08.2015.
  */
 app.controller('LoginController', ['$scope', function($scope) {
@@ -49,120 +56,123 @@ app.controller('LoginController', ['$scope', function($scope) {
  * Created by Aleh on 16.08.2015.
  */
 
-app.controller('ProjectMainController', ['$scope', function($scope){
-    console.log('ProjectMainController');
+app.controller('MainController', ['$scope', function($scope){
+    console.log('MainController');
 }]);
 
-app.controller('ProjectListController', ['$scope', 'Projects', function ($scope, Projects) {
-    $scope.projects = Projects.query();
-    console.log($scope.projects);
-    console.log('ProjectListController');
+app.controller('ProjectListController', ['$scope', '$uibModal','Projects',
+    function ($scope, $modal, Projects) {
+
+        $scope.open = function (size) {
+            var modalInstance = $modal.open({
+                animation: true,
+                templateUrl: 'static/modals/myModalContent.html',
+                controller: 'ModalInstanceCtrl',
+                size: size,
+                resolve: {
+                    items: function () {
+                        return [1, 2];
+                    }
+                }
+            });
+
+            modalInstance.result.then(function (project) {
+                $scope.projects.push(project)
+            }, function () {
+                console.log('Cancel')
+            });
+      };
+
+        $scope.projects = Projects.query();
+        console.log('ProjectListController');
 }]);
 
-app.controller('ProjectDetailController', ['$scope', '$stateParams', 'Projects', function($scope, $stateParams, Projects) {
-    $scope.project = Projects.get({id: $stateParams.id});
-    console.log($scope.project)
-    console.log('ProjectDetailController');
+app.controller('ProjectDetailController', ['$scope', '$stateParams', 'Projects',
+    function($scope, $stateParams, Projects) {
+        $scope.project = Projects.get({id: $stateParams.project_id});
+        console.log('ProjectDetailController');
+}]);
+
+app.controller('ModalInstanceCtrl', ['$scope', '$uibModalInstance', 'Projects',
+    function ($scope, $modalInstance, Projects) {
+
+        $scope.checkInvalidField = function (field) {
+            return field.$dirty && field.$invalid
+        };
+
+
+        $scope.save = function () {
+            Projects.save($scope.project, function(data) {
+                $modalInstance.close(data);
+            });
+        };
+
+        $scope.cancel = function () {
+            $modalInstance.dismiss('cancel');
+        };
+        console.log('ModalInstanceCtrl');
 }]);;/**
  * Created by Aleh on 16.08.2015.
  */
 
 app.factory('Projects', ['$resource', function($resource){
-    return $resource('/api/projects/projects/:id', {id: '@id'})
-}]);;angular.module('TimeSystemApp').run(['$templateCache', function($templateCache) {
+    return $resource('/api/projects/:id', {id: '@id'})
+}]);;angular.module('trs').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('ui/src/templates/auth/login.html',
-    "<form>\r" +
-    "\n" +
-    "    <div class=\"form-group\">\r" +
-    "\n" +
-    "        <span>Login</span>\r" +
-    "\n" +
-    "        <input type=\"text\" class=\"form-control\">\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "    <div class=\"form-group\">\r" +
-    "\n" +
-    "        <span>Password</span>\r" +
-    "\n" +
-    "        <input type=\"password\" class=\"form-control\">\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "    <input type=\"submit\" class=\"btn btn-primary\">\r" +
-    "\n" +
+    "<form>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <span>Login</span>\n" +
+    "        <input type=\"text\" class=\"form-control\">\n" +
+    "    </div>\n" +
+    "    <div class=\"form-group\">\n" +
+    "        <span>Password</span>\n" +
+    "        <input type=\"password\" class=\"form-control\">\n" +
+    "    </div>\n" +
+    "    <input type=\"submit\" class=\"btn btn-primary\">\n" +
     "</form>"
   );
 
 
   $templateCache.put('ui/src/templates/project/detail.html',
-    "<h3>Detail</h3>\r" +
+    "<h3>Detail</h3>\n" +
+    "<div class=\"row\">\n" +
+    "    <div class=\"col-md-12\">\n" +
+    "        <h3>{{ project.name }}</h3>\n" +
+    "        <span>Date start - {{ project.start_date }}</span>\n" +
+    "        <div>{{ project.description }}</div>\n" +
+    "        <span>Date end - {{ project.end_date }}</span>\n" +
+    "    </div>\n" +
     "\n" +
-    "<div class=\"row\">\r" +
-    "\n" +
-    "    <div class=\"col-md-12\">\r" +
-    "\n" +
-    "        <h3>{{ project.name }}</h3>\r" +
-    "\n" +
-    "        <span>Date start - {{ project.start_date }}</span>\r" +
-    "\n" +
-    "        <div>{{ project.description }}</div>\r" +
-    "\n" +
-    "        <span>Date end - {{ project.end_date }}</span>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "</div>\r" +
-    "\n" +
+    "</div>\n" +
     "<div ui-view></div>"
   );
 
 
-  $templateCache.put('ui/src/templates/project/project_list.html',
-    "<h3>List</h3>\r" +
-    "\n" +
-    "<table class=\"table table-hover\">\r" +
-    "\n" +
-    "    <tr ui-sref=\"project.list\">\r" +
-    "\n" +
-    "        <th>Name</th>\r" +
-    "\n" +
-    "        <th>Description</th>\r" +
-    "\n" +
-    "        <th>Start date</th>\r" +
-    "\n" +
-    "        <th>End date</th>\r" +
-    "\n" +
-    "    </tr>\r" +
-    "\n" +
-    "    <tr ng-repeat=\"project in projects\" ui-sref=\"project.list.detail({id:{{ project.id }}})\">\r" +
-    "\n" +
-    "        <td>{{ project.name }}</td>\r" +
-    "\n" +
-    "        <td>{{ project.description }}</td>\r" +
-    "\n" +
-    "        <td>{{ project.start_date }}</td>\r" +
-    "\n" +
-    "        <td>{{ project.end_date }}</td>\r" +
-    "\n" +
-    "    </tr>\r" +
-    "\n" +
-    "</table>\r" +
-    "\n" +
-    "<div ui-view></div>\r" +
-    "\n"
+  $templateCache.put('ui/src/templates/project/list.html',
+    "<h3>List</h3>\n" +
+    "<table class=\"table table-hover\">\n" +
+    "    <tr ui-sref=\"project.list\">\n" +
+    "        <th>Name</th>\n" +
+    "        <th>Description</th>\n" +
+    "        <th>Start date</th>\n" +
+    "        <th>End date</th>\n" +
+    "    </tr>\n" +
+    "    <tr ng-repeat=\"project in projects\" ui-sref=\"project.list.detail({id:{{ project.id }}})\">\n" +
+    "        <td>{{ project.name }}</td>\n" +
+    "        <td>{{ project.description }}</td>\n" +
+    "        <td>{{ project.start_date }}</td>\n" +
+    "        <td>{{ project.end_date }}</td>\n" +
+    "    </tr>\n" +
+    "</table>\n" +
+    "<div ui-view></div>\n"
   );
 
 
   $templateCache.put('ui/src/templates/project/main.html',
-    "<h3>Main</h3>\r" +
-    "\n" +
-    "<div ui-view></div>\r" +
-    "\n"
+    "<h3>Main</h3>\n" +
+    "<div ui-view></div>\n"
   );
 
 }]);

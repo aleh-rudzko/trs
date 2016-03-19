@@ -9,6 +9,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only=True,
         view_name='task-detail'
     )
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Project
