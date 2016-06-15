@@ -81,7 +81,7 @@ class TaskManager(models.Manager):
 
 
 class Task(TimeStampModel):
-    STATE = (
+    STATES = (
         (0, 'Draft'),
         (1, 'Start'),
         (2, 'Completed')
@@ -90,7 +90,7 @@ class Task(TimeStampModel):
     description = models.TextField(max_length=200)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    state = models.IntegerField(choices=STATE, default=0)
+    state = models.IntegerField(choices=STATES, default=0)
     project = models.ForeignKey(Project, related_name='tasks')
     owner = models.ForeignKey(User, related_name='tasks')
     objects = TaskManager()

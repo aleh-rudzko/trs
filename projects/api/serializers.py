@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from projects.models import Project, Task, Report
+from projects.models import Project, Task, Report, ProjectMembership, TaskMembership
 from users.models import User
 
 
@@ -13,6 +13,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
+
+
+class ProjectMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectMembership
+
+
+class TaskMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaskMembership
 
 
 class TaskSerializer(serializers.ModelSerializer):
