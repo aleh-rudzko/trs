@@ -10,27 +10,38 @@ app.config(function($stateProvider, $urlRouterProvider) {
   //
   // Now set up the states
     $stateProvider
-        .state('projects', {
+        .state('trs', {
+            url: '',
+            abstract: true,
+            templateUrl: '/static/views/main.html'
+        })
+        .state('trs.projects', {
             url: "/projects",
-            templateUrl: "static/projects/list.html",
-            controller: 'ProjectListController'
-        })
-        .state('projects.detail', {
-            url: "/:project_id",
-            templateUrl: "static/projects/detail.html",
-            controller: 'ProjectDetailController'
-        })
-        .state('projects.detail.tasks', {
-            url: "/tasks",
-            templateUrl: "static/tasks/list.html",
-            controller: function($scope) {
-                $scope.items = ["A", "List", "Of", "Items"];
+            templateUrl: "/static/views/projects/list.html",
+            controller: 'ProjectListController',
+            resolve: {
+                projects: ['ProjectService', '']
             }
         })
-        .state('projects.detail.tasks.detail', {
-            url: "/:task_id",
-            templateUrl: "static/tasks/detail.html"
-        });
+            .state('trs.projects.preview', {
+                templateUrl: '/static/views/projects/detail.html'
+            })
+        .state('trs.projects_detail', {
+            url: "/projects/:project_id",
+            templateUrl: "/static/views/projects/detail.html",
+            controller: 'ProjectDetailController'
+        })
+    //     .state('projects.detail.tasks', {
+    //         url: "/tasks",
+    //         templateUrl: "/static/tasks/list.html",
+    //         controller: function($scope) {
+    //             $scope.items = ["A", "List", "Of", "Items"];
+    //         }
+    //     })
+    //     .state('projects.detail.tasks.detail', {
+    //         url: "/:task_id",
+    //         templateUrl: "/static/tasks/detail.html"
+    //     });
         //.state('projects.detail.tasks.detail.reports', {
         //    url: "/list",
         //    templateUrl: "static/partials/state2.list.html",

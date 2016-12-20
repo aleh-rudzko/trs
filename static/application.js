@@ -10,27 +10,35 @@ app.config(function($stateProvider, $urlRouterProvider) {
   //
   // Now set up the states
     $stateProvider
-        .state('projects', {
+        .state('trs', {
+            url: '',
+            abstract: true,
+            templateUrl: '/static/views/main.html'
+        })
+        .state('trs.projects', {
             url: "/projects",
-            templateUrl: "static/projects/list.html",
+            templateUrl: "/static/views/projects/list.html",
             controller: 'ProjectListController'
         })
-        .state('projects.detail', {
-            url: "/:project_id",
-            templateUrl: "static/projects/detail.html",
+            .state('trs.projects.preview', {
+                templateUrl: '/static/views/projects/detail.html'
+            })
+        .state('trs.projects_detail', {
+            url: "/projects/:project_id",
+            templateUrl: "/static/views/projects/detail.html",
             controller: 'ProjectDetailController'
         })
-        .state('projects.detail.tasks', {
-            url: "/tasks",
-            templateUrl: "static/tasks/list.html",
-            controller: function($scope) {
-                $scope.items = ["A", "List", "Of", "Items"];
-            }
-        })
-        .state('projects.detail.tasks.detail', {
-            url: "/:task_id",
-            templateUrl: "static/tasks/detail.html"
-        });
+    //     .state('projects.detail.tasks', {
+    //         url: "/tasks",
+    //         templateUrl: "/static/tasks/list.html",
+    //         controller: function($scope) {
+    //             $scope.items = ["A", "List", "Of", "Items"];
+    //         }
+    //     })
+    //     .state('projects.detail.tasks.detail', {
+    //         url: "/:task_id",
+    //         templateUrl: "/static/tasks/detail.html"
+    //     });
         //.state('projects.detail.tasks.detail.reports', {
         //    url: "/list",
         //    templateUrl: "static/partials/state2.list.html",
@@ -117,62 +125,4 @@ app.controller('ModalInstanceCtrl', ['$scope', '$uibModalInstance', 'Projects',
 
 app.factory('Projects', ['$resource', function($resource){
     return $resource('/api/projects/:id', {id: '@id'})
-}]);;angular.module('trs').run(['$templateCache', function($templateCache) {
-  'use strict';
-
-  $templateCache.put('ui/src/templates/auth/login.html',
-    "<form>\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <span>Login</span>\n" +
-    "        <input type=\"text\" class=\"form-control\">\n" +
-    "    </div>\n" +
-    "    <div class=\"form-group\">\n" +
-    "        <span>Password</span>\n" +
-    "        <input type=\"password\" class=\"form-control\">\n" +
-    "    </div>\n" +
-    "    <input type=\"submit\" class=\"btn btn-primary\">\n" +
-    "</form>"
-  );
-
-
-  $templateCache.put('ui/src/templates/project/detail.html',
-    "<h3>Detail</h3>\n" +
-    "<div class=\"row\">\n" +
-    "    <div class=\"col-md-12\">\n" +
-    "        <h3>{{ project.name }}</h3>\n" +
-    "        <span>Date start - {{ project.start_date }}</span>\n" +
-    "        <div>{{ project.description }}</div>\n" +
-    "        <span>Date end - {{ project.end_date }}</span>\n" +
-    "    </div>\n" +
-    "\n" +
-    "</div>\n" +
-    "<div ui-view></div>"
-  );
-
-
-  $templateCache.put('ui/src/templates/project/list.html',
-    "<h3>List</h3>\n" +
-    "<table class=\"table table-hover\">\n" +
-    "    <tr ui-sref=\"project.list\">\n" +
-    "        <th>Name</th>\n" +
-    "        <th>Description</th>\n" +
-    "        <th>Start date</th>\n" +
-    "        <th>End date</th>\n" +
-    "    </tr>\n" +
-    "    <tr ng-repeat=\"project in projects\" ui-sref=\"project.list.detail({id:{{ project.id }}})\">\n" +
-    "        <td>{{ project.name }}</td>\n" +
-    "        <td>{{ project.description }}</td>\n" +
-    "        <td>{{ project.start_date }}</td>\n" +
-    "        <td>{{ project.end_date }}</td>\n" +
-    "    </tr>\n" +
-    "</table>\n" +
-    "<div ui-view></div>\n"
-  );
-
-
-  $templateCache.put('ui/src/templates/project/main.html',
-    "<h3>Main</h3>\n" +
-    "<div ui-view></div>\n"
-  );
-
 }]);

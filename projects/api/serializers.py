@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from projects.models import Project, Task, Report, ProjectMembership, TaskMembership
-from users.models import User
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -13,6 +12,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
+        fields = '__all__'
 
 
 class ProjectMembershipSerializer(serializers.ModelSerializer):

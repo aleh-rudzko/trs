@@ -30,8 +30,11 @@
                 </div>
             </div>
         </header>
+        
         <div class="container content">
-            <div ui-view></div>
+            {% block content-block %}
+                <div ui-view></div>
+            {% endblock %}
         </div>
 
     </div>

@@ -9,7 +9,7 @@
         <th></th>
     </tr>
     <tr ng-repeat="project in projects">
-        <td ><a ui-sref="projects.detail({project_id:{{ project.id }}})">{{ project.name }}</a></td>
+        <td ><a ui-sref="trs.projects_detail({project_id:{{ project.id }}})">{{ project.name }}</a></td>
         <td>{{ project.description }}</td>
         <td>{{ project.start_date }}</td>
         <td>{{ project.end_date }}</td>

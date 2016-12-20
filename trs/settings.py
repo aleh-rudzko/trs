@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -63,18 +64,18 @@ WSGI_APPLICATION = 'trs.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
+POSTGRE_URI = os.environ.get('POSTGRE_URI', 'postgres://trs:trs@localhost/trs')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dj_database_url.config(default=POSTGRE_URI,
+                                      engine='django.db.backends.postgresql_psycopg2')
 }
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.DjangoModelPermissions'
     ]
 }
 
@@ -102,7 +103,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
     os.path.join(BASE_DIR, "bower_components"),
-    os.path.join(BASE_DIR, "ui/src/templates")
 )
 
 TEMPLATES = [
@@ -120,6 +120,3 @@ TEMPLATES = [
         },
     },
 ]
-
-
-LOGIN_REDIRECT_URL = 'project_list'

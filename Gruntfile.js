@@ -9,11 +9,18 @@ module.exports = function(grunt) {
         //        dest: 'static/js/templates.js'
         //    }
         //},
+        copy: {
+            files: {
+                cwd: 'ui/src/templates',  // set working folder / root to copy
+                src: '**/*',           // copy all files and subfolders
+                dest: 'static/views',    // destination folder
+                expand: true           // required when using cwd
+            }
+        },
         concat: {
             options: {
                 separator: ';'
             },
-
             common: {
                 src: [
                     'bower_components/jquery/dist/jquery.js',
@@ -30,7 +37,6 @@ module.exports = function(grunt) {
                 src: [
                     'ui/src/*.js',
                     'ui/src/**/**.js',
-                    'static/js/templates.js'
                     //'ui/src/app/**/*.js'
                 ],
                 dest: 'static/application.js'
@@ -81,9 +87,10 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     //grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-angular-templates');
 
-    grunt.registerTask('default', ['concat', 'watch']);//'ngtemplates', 'uglify'*/]);
+    grunt.registerTask('default', ['concat', 'copy', 'watch']);//'ngtemplates', 'uglify'*/]);
 };

@@ -1,16 +1,11 @@
 from django.db import models
 from trs.mixins import TimeStampModel
 from users.models import User
-# Create your models here.
 
 
 class ProjectManager(models.Manager):
     def available_for_user(self, user):
-        queryset = self.filter(projectmembership__user=user, projectmembership__is_active=True)
-        return queryset
-
-    def available_for_admin(self, user):
-        queryset = self.filter(owner=user)
+        queryset = self.filter(memberships__user=user, memberships__is_active=True)
         return queryset
 
 
@@ -25,7 +20,7 @@ class Project(TimeStampModel):
 
     @models.permalink
     def get_absolute_url(self):
-        return 'project_detail', [self.pk,]
+        return 'project_detail', (self.pk, )
 
     def __str__(self):
         return self.name
@@ -33,29 +28,32 @@ class Project(TimeStampModel):
     def is_owner(self, user):
         return self.owner == user
 
-    def is_admin(self, user):
-        conditions = [
-            self.is_owner(user),
-            self.projectmembership_set.filter(user=user, role=2, is_active=True).exists()
-        ]
-        return any(conditions)
-
-    def is_manager(self, user):
-        conditions = [
-            self.is_admin(user),
-            self.projectmembership_set.filter(user=user, role=1, is_active=True).exists()
-        ]
-        return any(conditions)
-
-    def is_membership(self, user):
-        conditions = [
-            self.is_manager(user),
-            self.projectmembership_set.filter(user=user, role=0, is_active=True).exists()
-        ]
-        return any(conditions)
-
     def verify_access(self, user):
         return self.is_membership(user)
+
+    def is_admin(self, user):
+        admin_level = 2
+        return self.check_role(user, admin_level)
+
+    def is_manager(self, user):
+        manager = [1, 2]
+        return self.check_role(user, manager)
+
+    def is_membership(self, user):
+        membership = [0, 1, 2]
+        return self.check_role(user, membership)
+
+    def check_role(self, user, role):
+        query = {
+            'user': user,
+            'is_active': True
+        }
+        if isinstance(role, list):
+            query['role__in'] = role
+        else:
+            query['role'] = role
+
+        return self.memberships.filter(**query).exists()
 
 
 class ProjectMembership(TimeStampModel):
@@ -65,8 +63,8 @@ class ProjectMembership(TimeStampModel):
         (2, 'Admin')
     )
 
-    user = models.ForeignKey(User, verbose_name='user')
-    project = models.ForeignKey(Project, verbose_name='project')
+    user = models.ForeignKey(User, verbose_name='user', related_name='project_memberships')
+    project = models.ForeignKey(Project, verbose_name='project', related_name='memberships')
     is_active = models.BooleanField(verbose_name='is_active', default=True)
     role = models.IntegerField(choices=LEVELS, default=0)
 
@@ -106,14 +104,7 @@ class Task(TimeStampModel):
         return self.owner == user
 
     def verify_access(self, user):
-        conditions_access = [
-            self.is_owner(user),
-            self.is_membership(user),
-            self.project.is_manager(user)
-        ]
-        if any(conditions_access):
-            return True
-        return False
+        return self.is_membership(user) or self.is_owner(user) or self.project.is_manager(user)
 
     def __str__(self):
         return 'Task "%s" for project "%s"' % (self.name, self.project.name)

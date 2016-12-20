@@ -8,10 +8,6 @@ from django.utils import timezone
 
 class UserManager(BaseUserManager):
 
-    @classmethod
-    def normalize_email(cls, email):
-        return email.lower()
-
     def _create_user(self, email, password,
                      is_staff, is_superuser, **extra_fields):
         """
@@ -39,11 +35,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    ROLES = (
-        (0, 'User'),
-        (1, 'Admin')
-    )
-
     first_name = models.CharField(_('first name'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=100, blank=True)
 
@@ -56,13 +47,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(_('active status'), default=False)
     is_staff = models.BooleanField(_('staff status'), default=False,
-        help_text=_('Designates whether the user can log into this admin '
-                    'site.'))
+                                   help_text=_('Designates whether the user can log into this admin site.'))
+    is_admin = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
-
-    role = models.IntegerField(choices=ROLES, default=0)
 
     objects = UserManager()
 
@@ -70,11 +59,4 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.first_name
 
     def get_full_name(self):
-        if not self.is_active:
-            return self.email
         return "%s %s" % (self.first_name, self.last_name)
-
-    def is_admin(self):
-        if self.role == 1:
-            return True
-        return False

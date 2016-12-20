@@ -1,4 +1,8 @@
-django==1.9.4
-djangorestframework==3.3.2
 dj-database-url==0.4.1
+Django==1.10.4
+djangorestframework==3.5.3
+factory-boy==2.7.0
+fake-factory==0.7.2
 psycopg2==2.6.1
+python-dateutil==2.6.0
+six==1.10.0
