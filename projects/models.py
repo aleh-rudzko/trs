@@ -84,9 +84,22 @@ class TaskMembership(TimeStampModel):
     is_active = models.BooleanField(verbose_name='is_active', default=True)
 
 
+class ReportManager(models.Manager):
+    def available_for_user(self, user):
+        queryset = self.filter(
+            Q(user=user) |
+            Q(task__memberships__user=user, task__memberships__is_active=user) |
+            Q(task__project__memberships__user=user, task__project__memberships__is_active=True,
+              task__project__memberships__role__in=[1, 2]) |
+            Q(task__project__owner=user))
+        return queryset
+
+
 class Report(TimeStampModel):
     report_date = models.DateTimeField()
     effort = models.TimeField()
     description = models.TextField(max_length=200)
     task = models.ForeignKey(Task, related_name='reports')
     user = models.ForeignKey(User, related_name='reports')
+
+    objects = ReportManager()
