@@ -1,11 +1,14 @@
 from django.db import models
+from django.db.models import Q
+
 from trs.mixins import TimeStampModel
 from users.models import User
 
 
 class ProjectManager(models.Manager):
     def available_for_user(self, user):
-        queryset = self.filter(memberships__user=user, memberships__is_active=True)
+        queryset = self.filter(
+            Q(memberships__user=user, memberships__is_active=True) | Q(owner=user))
         return queryset
 
 
@@ -24,36 +27,6 @@ class Project(TimeStampModel):
 
     def __str__(self):
         return self.name
-
-    def is_owner(self, user):
-        return self.owner == user
-
-    def verify_access(self, user):
-        return self.is_membership(user)
-
-    def is_admin(self, user):
-        admin_level = 2
-        return self.check_role(user, admin_level)
-
-    def is_manager(self, user):
-        manager = [1, 2]
-        return self.check_role(user, manager)
-
-    def is_membership(self, user):
-        membership = [0, 1, 2]
-        return self.check_role(user, membership)
-
-    def check_role(self, user, role):
-        query = {
-            'user': user,
-            'is_active': True
-        }
-        if isinstance(role, list):
-            query['role__in'] = role
-        else:
-            query['role'] = role
-
-        return self.memberships.filter(**query).exists()
 
 
 class ProjectMembership(TimeStampModel):
@@ -74,7 +47,11 @@ class ProjectMembership(TimeStampModel):
 
 class TaskManager(models.Manager):
     def available_for_user(self, user):
-        queryset = self.filter(taskmembership__user=user, taskmembership__is_active=True)
+        queryset = self.filter(
+            Q(memberships__user=user, memberships__is_active=True) |
+            Q(owner=user) |
+            Q(project__memberships__user=user, project__memberships__role__in=[1, 2],
+              project__memberships__is_active=True) | Q(project__owner=user))
         return queryset
 
 
@@ -97,22 +74,13 @@ class Task(TimeStampModel):
     def get_absolute_url(self):
         return 'project_task_detail', [self.project.pk, self.pk, ]
 
-    def is_membership(self, user):
-        return self.taskmembership_set.filter(user=user).exists()
-
-    def is_owner(self, user):
-        return self.owner == user
-
-    def verify_access(self, user):
-        return self.is_membership(user) or self.is_owner(user) or self.project.is_manager(user)
-
     def __str__(self):
         return 'Task "%s" for project "%s"' % (self.name, self.project.name)
 
 
 class TaskMembership(TimeStampModel):
     user = models.ForeignKey(User, verbose_name='user')
-    task = models.ForeignKey(Task, verbose_name='task')
+    task = models.ForeignKey(Task, verbose_name='task', related_name='memberships')
     is_active = models.BooleanField(verbose_name='is_active', default=True)
 
 

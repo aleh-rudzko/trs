@@ -56,8 +56,6 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'trs.urls'
 
-
-
 WSGI_APPLICATION = 'trs.wsgi.application'
 
 

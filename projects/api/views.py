@@ -14,9 +14,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Project.objects.available_for_user(self.request.user)
         return Project.objects.none()
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
-
 
 class ProjectMembershipViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectMembershipSerializer
@@ -25,7 +22,11 @@ class ProjectMembershipViewSet(viewsets.ModelViewSet):
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
-    queryset = Task.objects.all()
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Task.objects.available_for_user(self.request.user)
+        return Task.objects.none()
 
 
 class TaskMembershipViewSet(viewsets.ModelViewSet):

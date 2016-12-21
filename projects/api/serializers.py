@@ -8,7 +8,12 @@ class ProjectSerializer(serializers.ModelSerializer):
         read_only=True,
         view_name='task-detail'
     )
-    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+    owner = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
+    def validate(self, data):
+        if data['start_date'] > data['end_date']:
+            raise serializers.ValidationError('End date must occur after start date')
+        return data
 
     class Meta:
         model = Project
@@ -32,8 +37,11 @@ class TaskSerializer(serializers.ModelSerializer):
         view_name='report-detail'
     )
 
+    owner = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
+
     class Meta:
         model = Task
+        fields = '__all__'
 
 
 class ReportSerializer(serializers.ModelSerializer):

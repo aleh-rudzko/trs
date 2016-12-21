@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth.models import Group
 from django.utils import timezone
 
-from projects.models import Project
+from projects.models import Project, Task
 from users.models import User
 
 
@@ -48,3 +48,15 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     end_date = timezone.now()
 
     owner = factory.SubFactory(UserFactory)
+
+
+class TaskFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Task
+
+    name = factory.Sequence(lambda n: 'Task {}'.format(n))
+    description = factory.Sequence(lambda n: 'Task description {}'.format(n))
+    owner = factory.SubFactory(UserFactory)
+    project = factory.SubFactory(ProjectFactory)
+    start_date = timezone.now()
+    end_date = timezone.now()
