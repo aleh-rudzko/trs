@@ -2,7 +2,7 @@ import factory
 from django.contrib.auth.models import Group
 from django.utils import timezone
 
-from projects.models import Project, Task
+from projects.models import Project, Task, Report
 from users.models import User
 
 
@@ -60,3 +60,9 @@ class TaskFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory(ProjectFactory)
     start_date = timezone.now()
     end_date = timezone.now()
+
+
+class ReportFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Report
+

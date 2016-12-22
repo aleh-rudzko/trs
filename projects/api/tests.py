@@ -237,3 +237,6 @@ class TaskViewSetTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Task.objects.get().name, data['name'])
+
+
+# class ReportViewSet(APITestCase):

@@ -1,7 +1,8 @@
 from django.db import models
 from django.db.models import Q
+from model_utils import Choices
+from model_utils.models import TimeStampedModel
 
-from trs.mixins import TimeStampModel
 from users.models import User
 
 
@@ -12,7 +13,7 @@ class ProjectManager(models.Manager):
         return queryset
 
 
-class Project(TimeStampModel):
+class Project(TimeStampedModel):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=200)
     start_date = models.DateTimeField()
@@ -29,17 +30,17 @@ class Project(TimeStampModel):
         return self.name
 
 
-class ProjectMembership(TimeStampModel):
-    LEVELS = (
-        (0, 'Member'),
-        (1, 'Manager'),
-        (2, 'Admin')
+class ProjectMembership(TimeStampedModel):
+    ROLE = Choices(
+        (0, 'member', 'member'),
+        (1, 'manager', 'manager'),
+        (2, 'admin', 'admin')
     )
 
     user = models.ForeignKey(User, verbose_name='user', related_name='project_memberships')
     project = models.ForeignKey(Project, verbose_name='project', related_name='memberships')
     is_active = models.BooleanField(verbose_name='is_active', default=True)
-    role = models.IntegerField(choices=LEVELS, default=0)
+    role = models.IntegerField(choices=ROLE, default=ROLE.member)
 
     def __str__(self):
         return '%s user invited to project %s' % (self.user, self.project)
@@ -50,22 +51,22 @@ class TaskManager(models.Manager):
         queryset = self.filter(
             Q(memberships__user=user, memberships__is_active=True) |
             Q(owner=user) |
-            Q(project__memberships__user=user, project__memberships__role__in=[1, 2],
+            Q(~Q(project__memberships__role=ProjectMembership.ROLE.member), project__memberships__user=user,
               project__memberships__is_active=True) | Q(project__owner=user))
         return queryset
 
 
-class Task(TimeStampModel):
-    STATES = (
-        (0, 'Draft'),
-        (1, 'Start'),
-        (2, 'Completed')
+class Task(TimeStampedModel):
+    STATES = Choices(
+        (0, 'draft', 'draft'),
+        (1, 'start', 'start'),
+        (2, 'completed', 'completed')
     )
     name = models.CharField(max_length=50)
     description = models.TextField(max_length=200)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
-    state = models.IntegerField(choices=STATES, default=0)
+    state = models.IntegerField(choices=STATES, default=STATES.draft)
     project = models.ForeignKey(Project, related_name='tasks')
     owner = models.ForeignKey(User, related_name='tasks')
     objects = TaskManager()
@@ -78,7 +79,7 @@ class Task(TimeStampModel):
         return 'Task "%s" for project "%s"' % (self.name, self.project.name)
 
 
-class TaskMembership(TimeStampModel):
+class TaskMembership(TimeStampedModel):
     user = models.ForeignKey(User, verbose_name='user')
     task = models.ForeignKey(Task, verbose_name='task', related_name='memberships')
     is_active = models.BooleanField(verbose_name='is_active', default=True)
@@ -88,14 +89,14 @@ class ReportManager(models.Manager):
     def available_for_user(self, user):
         queryset = self.filter(
             Q(user=user) |
-            Q(task__memberships__user=user, task__memberships__is_active=user) |
-            Q(task__project__memberships__user=user, task__project__memberships__is_active=True,
-              task__project__memberships__role__in=[1, 2]) |
+            Q(task__memberships__user=user, task__memberships__is_active=True) |
+            Q(~Q(task__project__memberships__role=ProjectMembership.ROLE.member),
+              task__project__memberships__user=user, task__project__memberships__is_active=True) |
             Q(task__project__owner=user))
         return queryset
 
 
-class Report(TimeStampModel):
+class Report(TimeStampedModel):
     report_date = models.DateTimeField()
     effort = models.TimeField()
     description = models.TextField(max_length=200)
