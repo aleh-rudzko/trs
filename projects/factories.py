@@ -29,13 +29,9 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    @factory.post_generation
-    def groups(self, created, extracted, **kwargs):
-        if not created:
-            return
 
-        if extracted:
-            self.groups.add(*extracted)
+class AdminFactory(UserFactory):
+    is_admin = True
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -47,7 +43,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     start_date = timezone.now()
     end_date = timezone.now()
 
-    owner = factory.SubFactory(UserFactory)
+    owner = factory.SubFactory(AdminFactory)
 
 
 class TaskFactory(factory.django.DjangoModelFactory):

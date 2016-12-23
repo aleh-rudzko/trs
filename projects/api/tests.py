@@ -2,17 +2,17 @@ from datetime import timedelta
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from projects.factories import UserFactory, GroupFactory, ProjectFactory, TaskFactory
+from projects.factories import UserFactory, AdminFactory, GroupFactory, ProjectFactory, TaskFactory
 from projects.models import Project, Task
 
 
 class ProjectViewSetTests(APITestCase):
-    def test_create_project(self):
+    def test_create_project_as_admin(self):
         url = reverse('project-list')
         data = {
             'name': 'test',
@@ -21,9 +21,7 @@ class ProjectViewSetTests(APITestCase):
             'end_date': timezone.now()
         }
 
-        permissions = Permission.objects.filter(codename__in=['add_project'])
-        group = GroupFactory.create(permissions=permissions)
-        user = UserFactory.create(groups=(group,))
+        user = AdminFactory()
         self.client.force_login(user)
 
         response = self.client.post(url, data=data, format='json')
@@ -33,7 +31,7 @@ class ProjectViewSetTests(APITestCase):
         project = Project.objects.get()
         self.assertEqual(project.name, 'test')
 
-    def test_create_project_with_invalid_range_between_start_and_end_date(self):
+    def test_create_project_as_anonymous(self):
         url = reverse('project-list')
         data = {
             'name': 'test',
@@ -42,17 +40,11 @@ class ProjectViewSetTests(APITestCase):
             'description': 'Test description'
         }
 
-        permissions = Permission.objects.filter(codename__in=['add_project'])
-        group = GroupFactory.create(permissions=permissions)
-        user = UserFactory.create(groups=(group,))
-        self.client.force_login(user)
-
         response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data, {'non_field_errors': ['End date must occur after start date']})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Project.objects.count(), 0)
 
-    def test_create_project_denied(self):
+    def test_create_project_as_user(self):
         url = reverse('project-list')
         data = {
             'name': 'test',
@@ -67,7 +59,36 @@ class ProjectViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Project.objects.count(), 0)
 
-    def test_get_mine_projects_as_owner(self):
+    def test_create_project_with_invalid_range_between_start_and_end_date(self):
+        url = reverse('project-list')
+        data = {
+            'name': 'test',
+            'start_date': timezone.now() + timedelta(days=5),
+            'end_date': timezone.now(),
+            'description': 'Test description'
+        }
+
+        user = AdminFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'non_field_errors': ['End date must occur after start date']})
+        self.assertEqual(Project.objects.count(), 0)
+
+    def test_get_projects_as_admin(self):
+        ProjectFactory.create_batch(size=5)
+
+        user = AdminFactory()
+        self.client.force_login(user)
+
+        url = reverse('project-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(Project.objects.available_for_user(user)), len(response.data))
+
+    def test_get_projects_as_owner(self):
         project, *_ = ProjectFactory.create_batch(size=4)
 
         self.client.force_login(project.owner)
@@ -79,7 +100,7 @@ class ProjectViewSetTests(APITestCase):
         self.assertEqual(Project.objects.available_for_user(project.owner).count(), len(response.data))
         self.assertEqual(project.name, response.data[0]['name'])
 
-    def test_get_mine_projects_as_user(self):
+    def test_get_projects_as_user(self):
         user = UserFactory()
         project, *_ = ProjectFactory.create_batch(size=5)
         project.memberships.create(user=user)
@@ -100,6 +121,17 @@ class ProjectViewSetTests(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'detail': 'Authentication credentials were not provided.'})
+
+    def test_get_project_as_admin(self):
+        project, *_ = ProjectFactory.create_batch(size=5)
+        url = reverse('project-detail', args=(project.pk,))
+
+        user = AdminFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(len(Project.objects.available_for_user(user)), 0)
 
     def test_get_project_as_owner(self):
         project = ProjectFactory()
@@ -141,11 +173,8 @@ class ProjectViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'detail': 'Authentication credentials were not provided.'})
 
-    def test_update_project(self):
-        permissions = Permission.objects.filter(codename__in=['change_project'])
-        group = GroupFactory.create(permissions=permissions)
+    def test_update_project_as_owner(self):
         project = ProjectFactory()
-        project.owner.groups.add(group)
         url = reverse('project-detail', args=(project.pk,))
         self.client.force_login(project.owner)
 
@@ -160,15 +189,45 @@ class ProjectViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Project.objects.get(pk=project.pk).description, response.data['description'])
 
-    def test_update_project_denied(self):
+    def test_update_project_as_admin(self):
         project = ProjectFactory()
         url = reverse('project-detail', args=(project.pk,))
-        self.client.force_login(project.owner)
+
+        user = AdminFactory()
+        self.client.force_login(user)
+
+        data = {
+            'description': 'Updated description',
+            'start_date': timezone.now(),
+            'end_date': timezone.now(),
+            'name': 'Update name'
+        }
+
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_project_as_user(self):
+        project = ProjectFactory()
+        url = reverse('project-detail', args=(project.pk,))
+
+        user = UserFactory()
+        self.client.force_login(user)
 
         data = {
             'description': 'Updated description'
         }
-        response = self.client.patch(url, data=data, format='json')
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(Project.objects.get(pk=project.pk).description, project.description)
+
+    def test_update_project_as_anonymous(self):
+        project = ProjectFactory()
+        url = reverse('project-detail', args=(project.pk,))
+
+        data = {
+            'description': 'Updated description'
+        }
+        response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(Project.objects.get(pk=project.pk).description, project.description)
 
