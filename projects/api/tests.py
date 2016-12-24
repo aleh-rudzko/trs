@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from projects.factories import UserFactory, AdminFactory, GroupFactory, ProjectFactory, TaskFactory
-from projects.models import Project, Task
+from projects.models import Project, Task, ProjectMembership
 
 
 class ProjectViewSetTests(APITestCase):
@@ -233,7 +233,7 @@ class ProjectViewSetTests(APITestCase):
 
 
 class TaskViewSetTests(APITestCase):
-    def test_get_tasks_as_owner(self):
+    def test_get_tasks_as_manager(self):
         task, *_ = TaskFactory.create_batch(size=5)
         self.client.force_login(task.owner)
 
@@ -260,7 +260,7 @@ class TaskViewSetTests(APITestCase):
             Task.objects.filter(memberships__user=user, memberships__is_active=True).count(), len(response.data))
         self.assertEqual(Task.objects.available_for_user(user).count(), len(response.data))
 
-    def test_get_tasks_as_project_owner(self):
+    def test_get_tasks_as_owner(self):
         task, *_ = TaskFactory.create_batch(size=5)
         self.client.force_login(task.project.owner)
 
@@ -278,11 +278,8 @@ class TaskViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(response.data, {'detail': 'Authentication credentials were not provided.'})
 
-    def test_create_task(self):
+    def test_create_task_as_owner(self):
         project = ProjectFactory()
-        permissions = Permission.objects.filter(codename__in=['add_task'])
-        group = GroupFactory.create(permissions=permissions)
-        project.owner.groups.add(group)
         self.client.force_login(project.owner)
 
         url = reverse('task-list')
@@ -297,5 +294,81 @@ class TaskViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Task.objects.get().name, data['name'])
 
+    def test_create_task_as_manager(self):
+        user = UserFactory()
+        self.client.force_login(user)
 
-# class ReportViewSet(APITestCase):
+        project = ProjectFactory()
+        project.memberships.create(user=user, role=ProjectMembership.ROLE.manager)
+
+        url = reverse('task-list')
+        data = {
+            'name': 'Name',
+            'description': 'Description',
+            'start_date': timezone.now(),
+            'end_date': timezone.now(),
+            'project': project.pk
+        }
+
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Task.objects.get().owner, user)
+
+    def test_create_task_as_member(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        project = ProjectFactory()
+        project.memberships.create(user=user, role=ProjectMembership.ROLE.member)
+
+        url = reverse('task-list')
+        data = {
+            'name': 'Name',
+            'description': 'Description',
+            'start_date': timezone.now(),
+            'end_date': timezone.now(),
+            'project': project.pk
+        }
+
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'project': ['You cannot create task in this project']})
+
+    def test_create_task_as_another_admin(self):
+        user = AdminFactory()
+        self.client.force_login(user)
+
+        project = ProjectFactory()
+
+        url = reverse('task-list')
+        data = {
+            'name': 'Name',
+            'description': 'Description',
+            'start_date': timezone.now(),
+            'end_date': timezone.now(),
+            'project': project.pk
+        }
+
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, {'project': ['You cannot create task in this project']})
+
+    def test_create_task_as_anonymous(self):
+        project = ProjectFactory()
+
+        url = reverse('task-list')
+        data = {
+            'name': 'Name',
+            'description': 'Description',
+            'start_date': timezone.now(),
+            'end_date': timezone.now(),
+            'project': project.pk
+        }
+
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class ReportViewSet(APITestCase):
+    def test_get_reports_as_admin(self):
+        pass

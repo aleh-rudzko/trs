@@ -23,11 +23,10 @@ class ProjectMembershipViewSet(viewsets.ModelViewSet):
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
+    permission_classes = (permissions.IsAuthenticated, )
 
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            return Task.objects.available_for_user(self.request.user)
-        return Task.objects.none()
+        return Task.objects.available_for_user(self.request.user)
 
 
 class TaskMembershipViewSet(viewsets.ModelViewSet):

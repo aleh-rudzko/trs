@@ -38,6 +38,12 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     owner = serializers.PrimaryKeyRelatedField(read_only=True, default=serializers.CurrentUserDefault())
 
+    def validate_project(self, project):
+        user = self.context.get('request').user
+        if not project.is_manager(user):
+            raise serializers.ValidationError('You cannot create task in this project')
+        return project
+
     def validate(self, data):
         start_date = data['start_date']
         end_date = data['end_date']

@@ -22,6 +22,28 @@ class Project(TimeStampedModel):
 
     objects = ProjectManager()
 
+    def is_owner(self, user):
+        return self.owner == user
+
+    def is_admin(self, user):
+        return (
+            self.is_owner(user) or
+            self.memberships.filter(user=user, role=ProjectMembership.ROLE.admin).exists()
+        )
+
+    def is_manager(self, user):
+        return (
+            self.is_admin(user) or
+            self.memberships.filter(user=user, role=ProjectMembership.ROLE.manager).exists()
+        )
+
+    def is_member(self, user):
+        return (
+            self.is_admin(user) or
+            self.is_manager(user) or
+            self.memberships.filter(user=user, role=ProjectMembership.ROLE.member).exists()
+        )
+
     @models.permalink
     def get_absolute_url(self):
         return 'project_detail', (self.pk, )

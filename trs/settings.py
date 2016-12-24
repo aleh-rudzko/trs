@@ -62,11 +62,12 @@ WSGI_APPLICATION = 'trs.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-POSTGRE_URI = os.environ.get('POSTGRE_URI', 'postgres://trs:trs@localhost/trs')
+DATABASE_URI = os.environ.get('DATABASE_URI', '/trs.db')#'postgres://trs:trs@localhost/trs')
+DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3')#'django.db.backends.postgresql_psycopg2')
 
 DATABASES = {
-    'default': dj_database_url.config(default=POSTGRE_URI,
-                                      engine='django.db.backends.postgresql_psycopg2')
+    'default': dj_database_url.config(default=DATABASE_URI,
+                                      engine=DATABASE_ENGINE)
 }
 
 REST_FRAMEWORK = {

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import factory
 from django.contrib.auth.models import Group
 from django.utils import timezone
@@ -40,8 +42,8 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: "Project {}".format(n))
     description = factory.Sequence(lambda n: "Project description {}".format(n))
-    start_date = timezone.now()
-    end_date = timezone.now()
+    start_date = timezone.now() - timedelta(days=5)
+    end_date = timezone.now() + timedelta(days=5)
 
     owner = factory.SubFactory(AdminFactory)
 
