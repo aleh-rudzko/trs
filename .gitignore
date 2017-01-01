@@ -4,7 +4,7 @@ bower_components/
 node_modules/
 db.sqlite3
 static/*.js
-static/*.css
 *.db
 static/app/*.js
 static/app/*.map
+
