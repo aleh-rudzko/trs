@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 
 
-@login_required
-def home(request):
+def index(request, path=''):
+    """
+    Renders the Angular2
+    """
     return render(request, template_name='base.html')
 

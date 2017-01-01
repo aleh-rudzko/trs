@@ -63,4 +63,3 @@ class TaskFactory(factory.django.DjangoModelFactory):
 class ReportFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Report
-

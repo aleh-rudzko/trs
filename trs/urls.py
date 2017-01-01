@@ -14,23 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
-from trs.views import home
+from trs import views
 from django.contrib import admin
 
-api_urlpatterns= [
+api_urlpatterns = [
     url(r'^users/', include('users.api.urls')),
     url(r'', include('projects.api.urls')),
-    #url(r'^tasks/', include('tasks.api.urls')),
-    #url(r'^reports/', include('reports.api.urls')),
 ]
 
 
 urlpatterns = [
-    url(r'^$', home, name='home_page'),
-    url(r'^users/', include('users.urls')),
-    url(r'^projects/', include('projects.urls')),
-
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(api_urlpatterns)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^(?P<path>.*)$', views.index)
 ]
